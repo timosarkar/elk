@@ -1,0 +1,39 @@
+name: elk-lab
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.2
+    networks: 
+      - net01
+    container_name: els01
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    deploy:
+      resources:
+        limits:
+          memory: 2GB
+    restart: always
+    mem_limit: 4g
+    environment:
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g # memory flags for java
+      - discovery.type=single-node # this is a single-node deployment. in prod its likely multi-node
+      - xpack.security.enrollment.enabled=true
+      - xpack.security.enabled=true
+      #- xpack.security.enabled=false # if enabled, SSL/TLS needs to be active
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.2
+    networks:
+      - net01
+    container_name: kib01
+    ports:
+      - "5601:5601"
+
+networks:
+  net01:
+    driver: bridge
+volumes:
+  esdata:
